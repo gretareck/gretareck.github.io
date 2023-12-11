@@ -1,0 +1,20 @@
+---
+title: "Homework 5"
+subtitle: "<br><br>"
+editor: visual
+---
+
+```{r}
+#| include: false
+
+library(tidyverse)
+library(gapminder)
+library(ggthemes)
+library(hrbrthemes)
+```
+
+```{r}
+ggplot(diamonds) + 
+ geom_point(aes(x=carat,y= price, color=clarity)) +
+ scale_color_tableau()
+```

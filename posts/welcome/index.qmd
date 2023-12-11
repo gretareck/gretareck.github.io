@@ -1,6 +1,6 @@
 ---
-title: "Welcome To My Blog"
-author: "YOUR NAME"
+title: "Welcome to Greta's blog"
+author: "Greta"
 date: "2023-10-27"
 categories: [news]
 ---

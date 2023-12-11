@@ -1,5 +1,6 @@
 ---
 title: "Greta"
+subtitle: "quarto-templale.qmd"
 about:
   template: trestles  # jolla  trestles  solana  marquee  broadside
   image: img/profile.png
@@ -37,5 +38,67 @@ Minor in Business Administration
 ## Experience
 
 Starbucks Analytics | Data Analyst Intern | May 2024 - Aug 2024
+
+---
+title: "Habits"
+author: YOUR_NAME
+date: November 27, 2023
+format: 
+  html
+---
+```{r}
+#
+
+
+#
+
+
+# for commenting 
+
+```
+
+below is commenting
+<!-- Here is -->
+
+```{r}
+#| include: false
+library(tidyverse)
+library(skimr)  
+library(ggthemes)  # additional ggplot themes
+library(hrbrthemes)  # additional ggplot themes and more
+```
+```{r}
+#| echo: false
+library(gapminder) # to load gapminder data.frame
+ggplot(gapminder) +
+  geom_point(aes(x = gdpPercap, y = lifeExp,
+                 color = continent), alpha = .25) +
+  labs(x = "GDP per capita",
+       y = "Life Expectancy",
+       color = "Continent") +
+  theme_minimal()
+```
+
+
+```{r}
+#| include: false
+library(tidyverse)
+library(skimr)  
+library(ggthemes)  # additional ggplot themes
+library(hrbrthemes)  # additional ggplot themes and more
+```
+
+```{r}
+#| eval: false
+ggplot(gapminder) +
+  geom_point(aes(x = gdpPercap, y = lifeExp,
+                 color = continent), alpha = .25) +
+  labs(x = "GDP per capita",
+       y = "Life Expectancy",
+       color = "Continent") +
+  theme_economist()
+```
+
+```
 
 

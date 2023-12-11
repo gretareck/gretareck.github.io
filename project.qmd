@@ -22,6 +22,7 @@ execute:
 
 from: markdown+emoji
 ---
+
 ```{r setup}
 #| include: false
 library(tidyverse)

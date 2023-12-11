@@ -1,0 +1,87 @@
+---
+title: "Restaurants"
+author: "Greta"
+date: "2023-10-30"
+categories: [starwars, code, analysis]
+image: "image.png"
+
+execute: 
+  warning: false
+  message: false
+  
+toc: true
+---
+```{r}
+#| include: false
+
+library(knitr)
+library(rmarkdown)
+library(tidyverse)
+library(skimr)
+library(ggthemes)
+library(hrbrthemes)
+
+theme_set(theme_ipsum()+
+          theme(strip.background =element_rect(fill="lightgray"),
+                axis.title.x  = element_text(angle = 0,
+                                            size = rel(1.5),
+                                            margin = margin(10,0,0,0)),
+                axis.title.y  = element_text(angle = 0,
+                                            size = rel(1.5),
+                                            margin = margin(0,10,0,0))
+                )
+          )
+```
+
+Let's analyze the `starwars` data:
+
+```{r}
+restaurants <- read_csv("https://bcdanl.github.io/data/DOHMH_NYC_Restaurant_Inspection.csv")
+```
+
+
+```{r}
+freq <- as.data.frame( table(restaurants$GRADE) )
+prop <- as.data.frame( 100 * prop.table(table(restaurants$GRADE)) )
+
+ggplot(restaurants) +
+  geom_boxplot(aes(x = SCORE, y = GRADE, fill = GRADE) ) +
+  facet_grid( `CRITICAL FLAG` ~ . )
+
+ggplot(restaurants) +
+  geom_histogram(aes(x = SCORE), binwidth = 1 ) +
+  facet_grid( `CRITICAL FLAG` ~ GRADE )
+
+ggplot(restaurants) +
+  geom_histogram(aes(x = SCORE), binwidth = 1 ) +
+  facet_grid( `CRITICAL FLAG` ~ GRADE, scales = 'free_x' )
+
+ggplot(restaurants) +
+  geom_histogram(aes(x = SCORE), binwidth = 1 ) +
+  facet_wrap( `CRITICAL FLAG` ~ GRADE, scales = 'free' )
+
+ggplot(restaurants) +
+  geom_bar(aes(x = `CRITICAL FLAG`,
+               y = after_stat(prop), group = 1)) +
+  facet_grid( GRADE ~ BORO )
+
+q2e <- restaurants %>% 
+  group_by(`CUISINE DESCRIPTION`) %>% 
+  mutate(n = n()) %>% 
+  ungroup() %>% 
+  filter(dense_rank(-n) <= 10) %>% 
+  group_by(`CUISINE DESCRIPTION`, GRADE) %>% 
+  count() %>% 
+  group_by(`CUISINE DESCRIPTION`) %>% 
+  mutate(prop_A = n / sum(n)) %>% 
+  filter(GRADE == 'A') %>% 
+  arrange(-prop_A)
+```
+
+
+
+
+
+
+
+

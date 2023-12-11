@@ -2,8 +2,8 @@ project:
   type: website
   output-dir: "."
 
-website:
-  title: "YOUR NAME"
+website: 
+  title: "Greta"
   navbar:
     pinned: true
     left:
@@ -11,7 +11,17 @@ website:
         href: project.qmd
       - text: Blog
         href: blog-listing.qmd
-  page-footer: 
+      - text: Projects
+        href: projects.qmd
+      - text: Classwork
+        href: danl-200-cw-10.qmd
+        menu:
+          - project_1.qmd
+          - project_2.qmd
+
+     
+      
+page-footer: 
     center: "Powered with GitHub and Quarto<br>© YOUR NAME, 2023"
 
 format:
