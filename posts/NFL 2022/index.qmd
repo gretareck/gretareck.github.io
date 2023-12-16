@@ -1,0 +1,153 @@
+---
+title: "NFL 2022"
+author: "Greta"
+date: "2023-10-30"
+categories: [news, code, analysis]
+image: "NFL 2022.png"
+---
+
+This is a post with executable code.
+
+
+```{r}
+library(tidyverse)
+library(skimr)
+library(ggthemes)
+library(hrbrthemes)
+
+theme_set(theme_ipsum()+
+          theme(strip.background =element_rect(fill="lightgray"),
+                axis.title.x = 
+                  element_text(angle = 0,
+                               size = rel(1.33),
+                               margin = margin(10,0,0,0)),
+                axis.title.y = 
+                  element_text(angle = 0,
+                               size = rel(1.33),
+                               margin = margin(0,10,0,0))
+                )
+          )
+
+NFL2022_stuffs <- read_csv('https://bcdanl.github.io/data/NFL2022_stuffs.csv')
+
+```
+```{r}
+rmarkdown::paged_table(NFL2022_stuffs)
+
+skim(NFL2022_stuffs) %>% 
+  select(-n_missing)
+```
+
+In data.frame, `NFL2022_stuffs`, remove observations for which values of `posteam` is missing
+```{r}
+NFL2022_stuffs <- na.omit(NFL2022_stuffs[!is.na(NFL2022_stuffs$posteam), ])
+
+rmarkdown::paged_table(NFL2022_stuffs)
+```
+  
+q2b <- 
+Summarize the mean value of `pass` for each `posteam` when all of the following conditions hold:
+1. `wp` is greater than 20% and less than 75%
+2. `down` is less than or equal to 2
+3. `half_seconds_remaining` is greater than 120
+```{r}
+filtered_data <- NFL2022_stuffs[NFL2022_stuffs$wp > 0.20 & NFL2022_stuffs$wp < 0.75 &
+                                  NFL2022_stuffs$down <= 2 &
+                                  NFL2022_stuffs$half_seconds_remaining > 120, ]
+mean_pass_by_posteam <- aggregate(filtered_data$pass, by=list(filtered_data$posteam), FUN=mean)
+colnames(mean_pass_by_posteam) <- c("posteam", "mean_pass")
+print(mean_pass_by_posteam)
+```
+#q2c
+Provide both (1) a ggplot code with `geom_point()` using the resulting data.frame in Q2b and (2) a simple comments to describe the mean value of `pass` for each `posteam`.
+In the ggplot, reorder the `posteam` categories based on the mean value of `pass` in ascending or in descending order
+```{r}
+library(ggplot2)
+
+mean_pass_by_posteam$posteam <- factor(mean_pass_by_posteam$posteam, 
+                                       levels = mean_pass_by_posteam$posteam[order(mean_pass_by_posteam$mean_pass)])
+
+
+ggplot(mean_pass_by_posteam, aes(x = mean_pass, y = posteam)) +
+  geom_point() +
+  labs(x = "Percent of Pass Plays", y = "Team with Possession", title = "Team vs Percent of Pass Plays") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+#q2d
+Consider the following data.frame:
+```{r}
+NFL2022_epa <- read_csv('https://bcdanl.github.io/data/NFL2022_epa.csv')
+rmarkdown::paged_table(NFL2022_epa) 
+```
+
+Create the data.frame, `NFL2022_stuffs_EPA`, that includes:
+
+1. All the variables in the data.frame, `NFL2022_stuffs`
+2. The variables, `passer`, `receiver`, and `epa`, from the data.frame, `NFL2022_epa` by joining the two data.frames
+
+In the resulting data.frame, NFL2022_stuffs_EPA, remove observations with NA in passer
+
+```{r}
+NFL2022_epa <- read_csv('https://bcdanl.github.io/data/NFL2022_epa.csv')
+NFL2022_stuffs_EPA <- merge(NFL2022_stuffs, NFL2022_epa[, c("game_id", "passer", "receiver", "epa")], by = "game_id")
+NFL2022_stuffs_EPA <- NFL2022_stuffs_EPA[complete.cases(NFL2022_stuffs_EPA$passer), ]
+
+rmarkdown::paged_table(NFL2022_stuffs_EPA)
+
+```
+
+#q2e
+Provide both (1) a single ggplot and (2) a simple comment to describe the NFL weekly trend of weekly mean value of `epa` for each of the following two passers:
+1. `"J.Allen"`
+2. `"P.Mahomes"`
+```{r}
+library(ggplot2)
+
+selected_passers <- c("J.Allen", "P.Mahomes")
+filtered_data <- NFL2022_stuffs_EPA[NFL2022_stuffs_EPA$passer %in% selected_passers, ]
+filtered_data$week <- factor(filtered_data$week, levels = unique(filtered_data$week))
+weekly_mean_epa <- aggregate(epa ~ week + passer, data = filtered_data, FUN = mean)
+
+ggplot(weekly_mean_epa, aes(x = week, y = epa, color = passer, group = passer)) +
+  geom_line() +
+  labs(x = "Week", y = "Weekly Mean EPA", title = "NFL Weekly Trend of Mean EPA for J.Allen and P.Mahomes") +
+  theme_minimal()
+```
+
+Patrick Mahomes generally has a higher weekly mean `epa` than Josh Allen
+
+## q2f
+Calculate the difference between the mean value of `epa` for `"J.Allen"` the mean value of `epa` for `"P.Mahomes"` for each value of week.
+```{r}
+selected_passers <- c("J.Allen", "P.Mahomes")
+filtered_data <- NFL2022_stuffs_EPA[NFL2022_stuffs_EPA$passer %in% selected_passers, ]
+mean_epa_by_week <- aggregate(epa ~ week + passer, data = filtered_data, FUN = mean)
+epa_diff <- reshape(mean_epa_by_week, idvar = "week", timevar = "passer", direction = "wide")
+epa_diff$epa_diff <- epa_diff$epa.J.Allen - epa_diff$epa.P.Mahomes
+print(epa_diff)
+```
+
+## q2g
+Summarize the resulting data.frame in Q2d, with the following four variables:
+
+1. `posteam`: String abbreviation for the team with possession.
+2. `passer`: Name of the player who passed a ball to a receiver by initially taking a three-step drop, and backpedaling into the pocket to make a pass. (Mostly, they are quarterbacks.)
+3. `mean_epa`: Mean value of epa in 2022 for each passer
+4. `n_pass`: Number of observations for each passer
+
+Then find the top 10 NFL passers in 2022 in terms of the mean value of `epa`, conditioning that `n_pass` must be greater than or equal to the third quantile level of `n_pass`
+```{r}
+library(dplyr)
+summary_data <- NFL2022_stuffs_EPA %>%
+  group_by(posteam, passer) %>%
+  summarise(mean_epa = mean(epa),
+            n_pass = n())
+third_quantile <- quantile(summary_data$n_pass, 0.75)
+top_passers <- summary_data %>%
+  filter(n_pass >= third_quantile) %>%
+  top_n(10, mean_epa) %>%
+  arrange(desc(mean_epa))
+print(top_passers)
+```
+

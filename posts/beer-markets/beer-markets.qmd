@@ -3,7 +3,7 @@ title: "Beer Markets"
 author: "Greta"
 date: "2023-11-02"
 categories: [beer, code, data-analysis]
-image: "beer market"
+image: "beer market.png"
 
 execute: 
   warning: false

@@ -2,9 +2,9 @@
 title: DANL Project
 subtitle: "Data-Driven Mastery: Unlocking Business Potential"
 author: 
-  - Name 1
-  - Name 2
-  - Name 3
+  - Name Greta Recktenwald
+  - Name Abby Hofschneider
+  - Name Ayden Currier 
   - Name 4
   - Name 5
 
@@ -30,18 +30,11 @@ library(skimr)
 library(ggthemes)
 library(hrbrthemes)
 
-theme_set(theme_ipsum()+
-          theme(strip.background =element_rect(fill="lightgray"),
-                axis.title.x = 
-                  element_text(angle = 0,
-                               size = rel(1.33),
-                               margin = margin(10,0,0,0)),
-                axis.title.y = 
-                  element_text(angle = 0,
-                               size = rel(1.33),
-                               margin = margin(0,10,0,0))
-                )
-          )
+
+
+file_path <- 'Goalies.csv'
+Goalies <- read.csv(file_path)
+
 ```
 
 
@@ -49,45 +42,68 @@ theme_set(theme_ipsum()+
 # Introduction
 
 About this project :clap:
-
-```{r}
-1 + 1
-```
+This project is to show my understanding of data analytics and how to use R studio 
+https://www.kaggle.com/datasets/open-source-sports/professional-hockey-database?select=Goalies.csv 
 
 
 # Data
 
-The data.frame `mpg` contains a subset of the fuel economy data that the EPA makes available on [https://fueleconomy.gov/](https://fueleconomy.gov/). It contains only models which had a new release every year between 1999 and 2008 - this was used as a proxy for the popularity of the car. :oncoming_automobile:
-
-
 ## Summary Statistics
-
 ```{r}
-mpg <- ggplot2::mpg
+rmarkdown::paged_table(Goalies)
+
 ```
 
 ```{r}
-#| results: asis
-#| echo: false
-rmarkdown::paged_table(mpg) 
-```
-
-
-```{r}
-skim(mpg) %>% 
+skim(Goalies) %>%
   select(-n_missing)
 ```
 
 
-## MPG and a Type of Cars
-The following boxplot shows how the distribution of highway MPG (`hwy`) varies by a type of cars (`class`) :blue_car: :truck: :minibus:.
+## Visualization
 
-
+What five players have the most goals scored against?
 ```{r}
-ggplot(data = mpg) +
-  geom_boxplot(aes(x = class, y = hwy, fill = class),
-               show.legend = F) +
-  labs(x = "Class", y = "Highway\nMPG") 
+library(dplyr)
+top_5_goalies <- Goalies %>%
+  arrange(desc(PostGA)) %>%
+  head(5)
+
+specific_goalies1 <- c("hrudeke01", "bannemu01", "daleyjo01", "hextaro01", 
+                       "fleurma01")
+top_5_data <- subset(Goalies, playerID %in% specific_goalies1)
+
+
+ggplot(top_5_data, aes(x = playerID, fill = PostGA)) +
+  geom_bar()
+
 ```
+The player with `playerID` "bannemu01" showed the highest number of goals scored against
 
 
+What five players have the most postseason wins?
+```{r}
+top_5_goalies_wins <- Goalies %>%
+  arrange(desc(PostW)) %>%
+  head(5)
+print(top_5_goalies_wins)
+
+specific_goalies2 <- c("barrato01", "belfoed01", "brodema01", "fleurma01", 
+                       "fuhrgr01")
+top_5_data2 <- subset(Goalies, playerID %in% specific_goalies2)
+
+
+ggplot(top_5_data2, aes(x = playerID, fill = PostW)) +
+  geom_bar()
+```
+The player with `playerID` "barrato01" showed the highest number of postseason wins
+
+
+
+What is the relationship between goalie shutouts and wins?
+```{r}
+library(ggplot2)
+ggplot(data = Goalies) +
+  geom_point(mapping = aes(x = SHO, y = W))
+```
+There is a positive relationship between goalie shutouts and wins. So, if a goalie continues tp have shutouts, the teams chances of wining increase signifitcantly 
